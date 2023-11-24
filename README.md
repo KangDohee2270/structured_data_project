@@ -7,7 +7,7 @@ project 1, with team 1
   - 임정은 O
   - 편하늘 O
   - 방서빈 O
-  - 윤재현
+  - 윤재현 O
   - 이재석 O
 
 ## PR 규칙!
