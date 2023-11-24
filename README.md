@@ -4,8 +4,8 @@ project 1, with team 1
 ## PR test (11/24)
 - PR 완료되신분들은 자신 이름 옆에 O를 붙여서 pull request 부탁드립니다.
   - 강도희 O
-  - 임정은
-  - 편하늘 O
+  - 임정은 O
+  - 편하늘
   - 방서빈 O
   - 윤재현
   - 이재석 O
