@@ -1,6 +1,13 @@
 # est_wassup_01
 project 1, with team 1
 
+## Requirements
+- Linux
+- python 3.9
+- torch 2.0
+- 
+
+
 ## PR test + 데이터셋 후보군 구축 (11/24)
 ### PR test
 - PR 완료되신분들은 자신 이름 옆에 O를 붙여서 pull request 부탁드립니다.
