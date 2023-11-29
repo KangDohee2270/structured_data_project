@@ -21,9 +21,9 @@ data : 2,900
 https://dacon.io/competitions/official/236193/overview/description
 
 
-제주도 도로 교통량 예측 AI 경진대회
+**제주도 도로 교통량 예측 AI 경진대회 (결정)**
 https://dacon.io/competitions/official/235985/overview/description
-data : 4,701,217 (수정됨)
+data : 4,701,217
 
 
 ## PR 규칙!
