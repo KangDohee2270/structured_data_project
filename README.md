@@ -11,28 +11,20 @@ project 1, with team 1
   - 윤재현 O
   - 이재석 O
 
-### 데이터셋 후보
-삼성 데이터셋
-- 최애
-  - 체력측정 항목별 측정 데이터(regression(1~3)
-    - 데이터를 보고 체력 레벨을 1~3으로 예측
-    - 데이터 컬럼 설명 잘되어있음, 데이터 짱많음
-      https://www.bigdata-culture.kr/bigdata/user/data_market/detail.do?id=ace0aea7-5eee-48b9-b616-637365d665c1#!
+### 데이터셋 후보 재선정
 
-- 차애
-  - 제주도 택배 물류 유통량 예측(regression)
-    - test dataset 존재
-    - https://www.brightics.ai/community/knowledge-sharing/data-sets/detail/7086
+주차수요 예측 AI 경진대회
+https://dacon.io/competitions/official/235745/overview/description
+data : 2,900
 
-  - Job Change of Data Scientists(binary classification)
-    - 데이터 분야의 이직 여부 예측
-    - 테스트데이터가 없음
-    - https://www.brightics.ai/community/knowledge-sharing/data-sets/detail/7083
+대구 교통사고 피해 예측 AI 경진대회
+https://dacon.io/competitions/official/236193/overview/description
 
 
-빅데이터
-- 전기자동차 월 전력수요량 예측 데이터
-  - https://www.bigdata-environment.kr/user/data_market/detail.do?id=3a87d150-4a97-11ed-8fbf-2b74f5407fe4
+제주도 도로 교통량 예측 AI 경진대회
+https://dacon.io/competitions/official/235985/overview/description
+data : 4,701,217 (수정됨)
+
 
 ## PR 규칙!
 - 메세지에 누가 보냈는지, 어떤 용도로 바꾼/추가된 코드인지 알려주세요
