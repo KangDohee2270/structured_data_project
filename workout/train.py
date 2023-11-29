@@ -21,10 +21,18 @@ def train_one_epoch(
       device: device
   '''
   model.train()
+  total_loss = 0
+  count = 0
   for X, y in data_loader:
     X, y = X.to(device), y.to(device)
     output = model(X)
     loss = criterion(output, y)
+    total_loss += loss.item()
+    count += 1
+    if count == 200:
+      print(total_loss / 200)
+      total_loss = 0
+      count = 0
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
