@@ -9,8 +9,7 @@ class HomeData:
     file_trn: str = '/home/data/train.csv'
     file_tst: str = '/home/data/test_eda.csv'
     target_col: str = 'target'
-    features = ['lane_count', 'road_rating', 'multi_linked', 'connect_code', 'maximum_speed_limit',
-                'weight_restricted', 'month', 'rough_road_name', 'line_number', 'start_latitude', 'start_longitude', 'end_latitude', 'end_longitude']
+    features: List[str] = field(default_factory=list)
     scaler: Literal['None', 'standard', 'minmax'] = 'None'
     scale_columns: List[str] = field(default_factory=list)  # 수정: field 함수 사용
 
@@ -69,7 +68,8 @@ if __name__ == "__main__":
     file_tst=preprocess_params.get('test-csv'),
     target_col=preprocess_params.get('target-col'),
     scaler=preprocess_params.get('scaler'),
-    scale_columns=preprocess_params.get('scale-columns')  # Use the correct attribute name
+    scale_columns=preprocess_params.get('scale-columns'),  # Use the correct attribute name
+    features=preprocess_params.get('features')
   )
   trn_X, trn_y, tst_X = home_data.preprocess()
 

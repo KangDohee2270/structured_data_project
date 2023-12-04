@@ -3,6 +3,7 @@ from torch import nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import torchmetrics
+from torch.optim.lr_scheduler import StepLR
 from dataclasses import dataclass, field
 from typing import Type, Optional
 import pandas as pd
@@ -73,10 +74,12 @@ class KFoldCV:
       optim = self.Optimizer(m.parameters(), **self.optim_kwargs)
 
       pbar = trange(self.epochs)
+      step_scheduler = StepLR(optim, step_size=4, gamma=0.1)
       for _ in pbar:
-        for train_loss in train_one_epoch(m, self.criterion, optim, dl_trn, self.metric, self.device, save_ratio=200):
-          wandb.log({"Training loss": train_loss / 200})
-          print(f'Train loss for fold {i}: {train_loss / 200:.3f}')
+        for train_loss in train_one_epoch(m, self.criterion, optim, dl_trn, self.metric, self.device, save_ratio=50):
+          wandb.log({"Training loss": train_loss / 50})
+          print(f'Train loss for fold {i}: {train_loss / 50:.3f}')
+          step_scheduler.step()
         trn_mae = self.metric.compute().item()
         self.metric.reset()
         evaluate(m, dl_val, self.metric, self.device)
@@ -112,7 +115,7 @@ if __name__ == "__main__":
   wandb.run.save()
 
   train_params = cfg.get('train_params')
-  wandb.config.update(train_params)
+  wandb.config.update(cfg)
   device = train_params.get('device')
 
   files = cfg.get('files')

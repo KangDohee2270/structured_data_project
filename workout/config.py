@@ -6,22 +6,25 @@ from nn import ANN
 config = {
 
    'preprocess' : {
-  
-
-    "train-csv": "/home/data/train.csv",
-    "test-csv" : "/home/data/test_eda.csv",
-    "output-train-feas-csv" : "./data/trn_X.csv",
-    "output-test-feas-csv" : "./data/tst_X.csv", 
-    "output-train-target-csv" : "./data/trn_y.csv", 
-    "output-test-target-csv" : "./data/tst_y.csv", 
-    "scale-columns" : ['start_latitude', 'start_longitude', 'end_latitude', 'end_longitude'], 
-    "target-col" : "target",
-    "scaler" : "minmax"
-},
+      "features":  ['lane_count', 'road_rating', 'maximum_speed_limit',
+                  'weight_restricted', 'month', 'rough_road_name', 
+                  'line_number', 'start_latitude', 'start_longitude',
+                  'end_latitude', 'end_longitude','end_turn_restricted','start_turn_restricted',
+                  "base_hour", "peak_season", 'multi_linked', 'connect_code'],
+      "train-csv": "/home/data/train.csv",
+      "test-csv" : "/home/data/test_eda.csv",
+      "output-train-feas-csv" : "./data/trn_X.csv",
+      "output-test-feas-csv" : "./data/tst_X.csv", 
+      "output-train-target-csv" : "./data/trn_y.csv", 
+      "output-test-target-csv" : "./data/tst_y.csv", 
+      "scale-columns" : ['start_latitude', 'start_longitude', 'end_latitude', 'end_longitude'], 
+      "target-col" : "target",
+      "scaler" : "minmax"
+  },
   'wandb_runname': "test",
   'files': {
-    'X_csv': './data/trn_X.csv',
-    'y_csv': './data/trn_y.csv',
+    'X_csv': '/home/data/trn_X_1204.csv',
+    'y_csv': '/home/data/trn_y_1204.csv',
     'output': './model.pth',
     'output_csv': './results/five_fold.csv',
   },
@@ -37,16 +40,16 @@ config = {
 
   'train_params': {
     'data_loader_params': {
-      'batch_size': 32,
+      'batch_size': 128,
       'shuffle': True,
     },
     'loss': F.mse_loss,
     'optim': torch.optim.Adam,
     'optim_params': {
-      'lr': 0.0001,
+      'lr': 0.001,
     },
     'metric': torchmetrics.MeanSquaredError(squared=False),
-    'device': 'cpu',
+    'device': 'cuda',
     'epochs': 10,
   },
 
