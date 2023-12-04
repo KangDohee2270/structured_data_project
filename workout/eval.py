@@ -74,9 +74,9 @@ class KFoldCV:
 
       pbar = trange(self.epochs)
       for _ in pbar:
-        for train_loss in train_one_epoch(m, self.criterion, optim, dl_trn, self.metric, self.device, save_ratio=200):
-          wandb.log({"Training loss": train_loss / 200})
-          print(f'Train loss for fold {i}: {train_loss / 200:.3f}')
+        for train_loss in train_one_epoch(m, self.criterion, optim, dl_trn, self.metric, self.device, save_ratio=50):
+          wandb.log({"Training loss": train_loss / 50})
+          print(f'Train loss for fold {i}: {train_loss / 50:.3f}')
         trn_mae = self.metric.compute().item()
         self.metric.reset()
         evaluate(m, dl_val, self.metric, self.device)
