@@ -9,7 +9,8 @@ def train_one_epoch(
   optimizer:torch.optim.Optimizer,
   data_loader:DataLoader,
   metric:torchmetrics.Metric,
-  device:str
+  device:str,
+  save_ratio:int
 ) -> None:
   '''train one epoch
   
@@ -29,8 +30,8 @@ def train_one_epoch(
     loss = criterion(output, y)
     total_loss += loss.item()
     count += 1
-    if count == 200:
-      print(total_loss / 200)
+    if count == save_ratio:
+      yield total_loss
       total_loss = 0
       count = 0
     optimizer.zero_grad()

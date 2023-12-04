@@ -5,6 +5,20 @@ from nn import ANN
 
 config = {
 
+   'preprocess' : {
+  
+
+    "train-csv": "/home/data/train.csv",
+    "test-csv" : "/home/data/test_eda.csv",
+    "output-train-feas-csv" : "./data/trn_X.csv",
+    "output-test-feas-csv" : "./data/tst_X.csv", 
+    "output-train-target-csv" : "./data/trn_y.csv", 
+    "output-test-target-csv" : "./data/tst_y.csv", 
+    "scale-columns" : ['start_latitude', 'start_longitude', 'end_latitude', 'end_longitude'], 
+    "target-col" : "target",
+    "scaler" : "minmax"
+},
+  'wandb_runname': "test",
   'files': {
     'X_csv': './data/trn_X.csv',
     'y_csv': './data/trn_y.csv',
@@ -33,7 +47,7 @@ config = {
     },
     'metric': torchmetrics.MeanSquaredError(squared=False),
     'device': 'cpu',
-    'epochs': 300,
+    'epochs': 10,
   },
 
   'cv_params':{

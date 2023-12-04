@@ -6,6 +6,7 @@ import torchmetrics
 from dataclasses import dataclass, field
 from typing import Type, Optional
 import pandas as pd
+import wandb
 
 def evaluate(
   model:nn.Module,
@@ -58,11 +59,10 @@ class KFoldCV:
       m.load_state_dict(model.state_dict())
     kfold = KFold(n_splits=self.n_splits, shuffle=False)
 
-    metrics = {'trn_rmse': [], 'val_rmse': []}
+    metrics = {'trn_mae': [], 'val_mae': []}
     for i, (trn_idx, val_idx) in enumerate(kfold.split(self.X)):
       X_trn, y_trn = self.X[trn_idx], self.y[trn_idx]
       X_val, y_val = self.X[val_idx], self.y[val_idx]
-      print(y_val)
       ds_trn = TensorDataset(X_trn, y_trn)
       ds_val = TensorDataset(X_val, y_val)
 
@@ -74,15 +74,19 @@ class KFoldCV:
 
       pbar = trange(self.epochs)
       for _ in pbar:
-        train_one_epoch(m, self.criterion, optim, dl_trn, self.metric, self.device)
-        trn_rmse = self.metric.compute().item()
+        for train_loss in train_one_epoch(m, self.criterion, optim, dl_trn, self.metric, self.device, save_ratio=200):
+          wandb.log({"Training loss": train_loss / 200})
+          print(f'Train loss for fold {i}: {train_loss / 200:.3f}')
+        trn_mae = self.metric.compute().item()
         self.metric.reset()
         evaluate(m, dl_val, self.metric, self.device)
-        val_rmse = self.metric.compute().item()
+        val_mae = self.metric.compute().item()
+        wandb.log({"Eval loss": val_mae})
+        print(f'Eval loss for fold {i}: {val_mae:.3f}')
         self.metric.reset()
-        pbar.set_postfix(trn_rmse=trn_rmse, val_loss=val_rmse)
-      metrics['trn_rmse'].append(trn_rmse)
-      metrics['val_rmse'].append(val_rmse)
+        pbar.set_postfix(trn_loss=trn_mae, val_loss=val_mae)
+      metrics['trn_mae'].append(trn_mae)
+      metrics['val_mae'].append(val_mae)
     return pd.DataFrame(metrics)
 
 def get_args_parser(add_help=True):
@@ -102,7 +106,13 @@ if __name__ == "__main__":
   exec(open(args.config).read())
   cfg = config
 
+  wandb.init(project='Jeju_traffic_prediction')
+  # 실행 이름 설정
+  wandb.run.name = cfg.get('wandb_runname')
+  wandb.run.save()
+
   train_params = cfg.get('train_params')
+  wandb.config.update(train_params)
   device = train_params.get('device')
 
   files = cfg.get('files')
