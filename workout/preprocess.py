@@ -10,6 +10,7 @@ class HomeData:
     file_tst: str = '/home/data/test_eda.csv'
     target_col: str = 'target'
     features: List[str] = field(default_factory=list)
+    encoding_columns: List[str] = field(default_factory=list)
     scaler: Literal['None', 'standard', 'minmax'] = 'None'
     scale_columns: List[str] = field(default_factory=list)  # 수정: field 함수 사용
 
@@ -42,7 +43,10 @@ class HomeData:
             # 주석: 스케일러 적용할 컬럼들만 추출하여 스케일링 진행
             X_trn[self.scale_columns] = scaler.fit_transform(X_trn[self.scale_columns])
             X_tst[self.scale_columns] = scaler.transform(X_tst[self.scale_columns])
-            print(X_trn[self.scale_columns])
+
+            X_trn = pd.get_dummies(X_trn, columns=self.encoding_columns)
+            X_tst = pd.get_dummies(X_tst, columns=self.encoding_columns)
+
         return X_trn, y_trn, X_tst
 
 def get_args_parser(add_help=True):
@@ -64,16 +68,16 @@ if __name__ == "__main__":
 
   args = get_args_parser().parse_args()
   home_data = HomeData(
+    features=preprocess_params.get('features'),
     file_trn=preprocess_params.get('train-csv'),
     file_tst=preprocess_params.get('test-csv'),
     target_col=preprocess_params.get('target-col'),
     scaler=preprocess_params.get('scaler'),
     scale_columns=preprocess_params.get('scale-columns'),  # Use the correct attribute name
-    features=preprocess_params.get('features')
+    encoding_columns=preprocess_params.get('encoding-columns'),  # Use the correct attribute name
   )
   trn_X, trn_y, tst_X = home_data.preprocess()
 
   trn_X.to_csv(preprocess_params.get('output-train-feas-csv'))
   tst_X.to_csv(preprocess_params.get('output-test-feas-csv'))
   trn_y.to_csv(preprocess_params.get('output-train-target-csv'))
-    
