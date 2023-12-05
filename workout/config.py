@@ -18,14 +18,18 @@ config = {
       "output-train-target-csv" : "./data/trn_y_1205.csv", 
       "output-test-target-csv" : "./data/tst_y_1205.csv", 
       "encoding-columns": ['start_turn_restricted', 'end_turn_restricted'],
-      "scale-columns" : ['start_latitude', 'start_longitude', 'end_latitude', 'end_longitude'], 
+      "scale-columns" : ['start_latitude', 'start_longitude', 'end_latitude', 'end_longitude', 'weight_restricted'], 
       "target-col" : "target",
       "scaler" : "minmax"
   },
-  'wandb_runname': "test",
+  'wandb':{
+      'use_wandb': False,
+      'wandb_runname': "test",
+      },
+
   'files': {
-    'X_csv': '/home/data/trn_X_1205.csv',
-    'y_csv': '/home/data/trn_y_1205.csv',
+    'X_csv': '/home/data/trn_X_1206.csv',
+    'y_csv': '/home/data/trn_y_1206.csv',
     'output': './model.pth',
     'output_csv': './results/five_fold.csv',
   },
@@ -53,7 +57,7 @@ config = {
     'device': 'cuda',
     'epochs': 10,
   },
-
+   
   'cv_params':{
     'n_split': 5,
   },
