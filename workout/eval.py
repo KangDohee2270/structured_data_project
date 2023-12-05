@@ -76,13 +76,15 @@ class KFoldCV:
       pbar = trange(self.epochs)
       for _ in pbar:
         for train_loss in train_one_epoch(m, self.criterion, optim, dl_trn, self.metric, self.device, save_ratio=50):
-          wandb.log({"Training loss": train_loss / 50})
+          if wandb_params.get('use_wandb'):
+            wandb.log({"Training loss": train_loss / 50})
           print(f'Train loss for fold {i}: {train_loss / 50:.3f}')
         trn_mae = self.metric.compute().item()
         self.metric.reset()
         evaluate(m, dl_val, self.metric, self.device)
         val_mae = self.metric.compute().item()
-        wandb.log({"Eval loss": val_mae})
+        if wandb_params.get('use_wandb'):
+          wandb.log({"Eval loss": val_mae})
         print(f'Eval loss for fold {i}: {val_mae:.3f}')
         self.metric.reset()
         pbar.set_postfix(trn_loss=trn_mae, val_loss=val_mae)
@@ -106,15 +108,16 @@ if __name__ == "__main__":
   
   exec(open(args.config).read())
   cfg = config
-
-  wandb.init(project='Jeju_traffic_prediction')
-  # 실행 이름 설정
-  wandb.run.name = cfg.get('wandb_runname')
-  wandb.run.save()
-
   train_params = cfg.get('train_params')
-  wandb.config.update(cfg)
   device = train_params.get('device')
+  wandb_params = cfg.get("wandb")
+
+  if wandb_params.get('use_wandb'):
+    wandb.init(project='Jeju_traffic_prediction')
+    # 실행 이름 설정
+    wandb.run.name = wandb_params.get('wandb_runname')
+    wandb.run.save()
+    wandb.config.update(cfg)
 
   files = cfg.get('files')
   X_df = pd.read_csv(files.get('X_csv'), index_col=0)
