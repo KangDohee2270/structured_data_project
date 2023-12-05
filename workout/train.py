@@ -68,16 +68,19 @@ def main(cfg):
   optimizer = Optim(model.parameters(), **optim_params)
 
   loss = train_params.get('loss')
-  metric = train_params.get('metric')
+  metric = train_params.get('metric').to(device)
   values = []
   pbar = trange(train_params.get('epochs'))
   for _ in pbar:
-    train_one_epoch(model, loss, optimizer, dl, metric, device)
+    for train_loss in train_one_epoch(model, loss, optimizer, dl, metric, device, save_ratio=50):
+      if wandb_params.get('use_wandb'):
+        wandb.log({"Training loss": train_loss / 50})
+      print(f'Train loss: {train_loss / 50:.3f}')
+        
     values.append(metric.compute().item())
     metric.reset()
     pbar.set_postfix(trn_loss=values[-1])
   torch.save(model.state_dict(), files.get('output'))
-
 def get_args_parser(add_help=True):
   import argparse
   
@@ -87,6 +90,15 @@ def get_args_parser(add_help=True):
   return parser
 
 if __name__ == "__main__":
+  import wandb
   args = get_args_parser().parse_args()
   exec(open(args.config).read())
+  config = config
+  wandb_params = config.get("wandb")
+  if wandb_params.get('use_wandb'):
+    wandb.init(project='Jeju_traffic_prediction_TRAIN')
+    # 실행 이름 설정
+    wandb.run.name = wandb_params.get('wandb_runname')
+    wandb.run.save()
+    wandb.config.update(config)
   main(config)
