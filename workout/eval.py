@@ -74,12 +74,10 @@ class KFoldCV:
       optim = self.Optimizer(m.parameters(), **self.optim_kwargs)
 
       pbar = trange(self.epochs)
-      step_scheduler = StepLR(optim, step_size=4, gamma=0.1)
       for _ in pbar:
         for train_loss in train_one_epoch(m, self.criterion, optim, dl_trn, self.metric, self.device, save_ratio=50):
           wandb.log({"Training loss": train_loss / 50})
           print(f'Train loss for fold {i}: {train_loss / 50:.3f}')
-          step_scheduler.step()
         trn_mae = self.metric.compute().item()
         self.metric.reset()
         evaluate(m, dl_val, self.metric, self.device)
