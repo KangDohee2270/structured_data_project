@@ -144,9 +144,13 @@ class RoadDataEncoding:
 
     def preprocess_peak_hour(self):
         self.data['peak_hour'] = self.data['base_hour'].apply(self.change_peak_hour)
-
+    
+    def preprocess_line_number(self):
+        self.data['line_number'] = self.data['road_name'].str.extract('(\d+)', expand=False).fillna(0).astype(int)
+    
     def preprocess_all(self):
         self.preprocess_rough_road_name()
+        self.preprocess_line_number()
         self.preprocess_season()
         self.preprocess_month()
         self.preprocess_peak_season()
