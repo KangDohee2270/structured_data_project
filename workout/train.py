@@ -2,6 +2,8 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 import torchmetrics
+import pandas as pd
+import numpy as np
 
 def train_one_epoch(
   model:nn.Module,
@@ -40,47 +42,64 @@ def train_one_epoch(
     metric.update(output, y)
 
 
-def main(cfg):
-  import numpy as np
-  import pandas as pd
+def main(cfg): 
   from torch.utils.data.dataset import TensorDataset
-  from nn import ANN
   from tqdm.auto import trange
+  import joblib 
 
   train_params = cfg.get('train_params')
   device = torch.device(train_params.get('device'))
   
   files = cfg.get('files')
-  X_trn = torch.tensor(pd.read_csv(files.get('X_csv'), index_col=0).to_numpy(dtype=np.float32))
-  y_trn = torch.tensor(pd.read_csv(files.get('y_csv'), index_col=0).to_numpy(dtype=np.float32))
-
-  dl_params = train_params.get('data_loader_params')
-  ds = TensorDataset(X_trn, y_trn)
-  dl = DataLoader(ds, **dl_params)
-
+  
+  # X_trn = torch.tensor(pd.read_csv(files.get('X_csv'), index_col=0).to_numpy(dtype=np.float32))
+  # y_trn = torch.tensor(pd.read_csv(files.get('y_csv'), index_col=0).to_numpy(dtype=np.float32))
+  X_trn = pd.read_csv(files.get('X_csv'), index_col=0).to_numpy(dtype=np.float32)
+  y_trn = pd.read_csv(files.get('y_csv'), index_col=0).to_numpy(dtype=np.float32)
   Model = cfg.get('model')
-  model_params = cfg.get('model_params')
-  model_params['input_dim'] = X_trn.shape[-1]
-  model = Model(**model_params).to(device)
 
-  Optim = train_params.get('optim')
-  optim_params = train_params.get('optim_params')
-  optimizer = Optim(model.parameters(), **optim_params)
+  if not issubclass(Model, nn.Module):
+    print("Select Ml model from sklearn...")
+    y_trn = y_trn.ravel()
+    model_params = cfg.get('ml_model_params')
+    model = Model(**model_params)
+    print("Train start")
+    model.fit(X_trn, y_trn)
+    print(f"Train complete. save the weights to {files.get('ml_output_model')}")
+    joblib.dump(model, files.get('ml_output_model'))
+    return
 
-  loss = train_params.get('loss')
-  metric = train_params.get('metric').to(device)
-  values = []
-  pbar = trange(train_params.get('epochs'))
-  for _ in pbar:
-    for train_loss in train_one_epoch(model, loss, optimizer, dl, metric, device, save_ratio=50):
-      if wandb_params.get('use_wandb'):
-        wandb.log({"Training loss": train_loss / 50})
-      print(f'Train loss: {train_loss / 50:.3f}')
-        
-    values.append(metric.compute().item())
-    metric.reset()
-    pbar.set_postfix(trn_loss=values[-1])
-  torch.save(model.state_dict(), files.get('output'))
+  else:
+    print("Select ANN model with Pytorch...")
+    model_params = cfg.get('ann_model_params')
+    X_trn = torch.tensor(X_trn)
+    y_trn = torch.tensor(y_trn)
+    dl_params = train_params.get('data_loader_params')
+    ds = TensorDataset(X_trn, y_trn)
+    dl = DataLoader(ds, **dl_params)
+
+    model_params['input_dim'] = X_trn.shape[-1]
+    model = Model(**model_params).to(device)
+
+    Optim = train_params.get('optim')
+    optim_params = train_params.get('optim_params')
+    optimizer = Optim(model.parameters(), **optim_params)
+
+    loss = train_params.get('loss')
+    metric = train_params.get('metric').to(device)
+    values = []
+    pbar = trange(train_params.get('epochs'))
+    for _ in pbar:
+      for train_loss in train_one_epoch(model, loss, optimizer, dl, metric, device, save_ratio=50):
+        if wandb_params.get('use_wandb'):
+          wandb.log({"Training loss": train_loss / 50})
+        print(f'Train loss: {train_loss / 50:.3f}')
+          
+      values.append(metric.compute().item())
+      metric.reset()
+      pbar.set_postfix(trn_loss=values[-1])
+    torch.save(model.state_dict(), files.get('output'))
+
 def get_args_parser(add_help=True):
   import argparse
   
