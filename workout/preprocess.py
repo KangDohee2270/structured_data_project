@@ -44,8 +44,8 @@ class HomeData:
             X_trn[self.scale_columns] = scaler.fit_transform(X_trn[self.scale_columns])
             X_tst[self.scale_columns] = scaler.transform(X_tst[self.scale_columns])
 
-            X_trn = pd.get_dummies(X_trn, columns=self.encoding_columns)
-            X_tst = pd.get_dummies(X_tst, columns=self.encoding_columns)
+        X_trn = pd.get_dummies(X_trn, columns=self.encoding_columns)
+        X_tst = pd.get_dummies(X_tst, columns=self.encoding_columns)
 
         return X_trn, y_trn, X_tst
 
