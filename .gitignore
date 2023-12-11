@@ -1,0 +1,7 @@
+workout/data/*
+workout/wandb/*
+workout/__pycache__
+workout/ml_model.pkl
+workout/results/*
+workout/submission.csv
+workout/__pycache__/*
