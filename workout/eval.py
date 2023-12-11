@@ -8,6 +8,8 @@ from dataclasses import dataclass, field
 from typing import Type, Optional
 import pandas as pd
 import wandb
+from sklearn.model_selection import KFold
+import numpy as np
 
 def evaluate(
   model:nn.Module,
@@ -30,6 +32,43 @@ def evaluate(
       X, y = X.to(device), y.to(device)
       output = model(X)
       metric.update(output, y)
+
+def ml_kfold(Model, x_train: np.array, y_train: np.array, model_params: tuple):
+  """ K-Fold function for ML model
+
+    Args:
+      Model : ML model from sklearn(ex. sklearn.ensemble.RandomForestRegressor)
+      x_train (np.array): features used for training. It must be of type np.array 
+      y_train (np.array): target used for training. It must be of type np.array 
+      model_params (tuple): model parameters
+
+    Return:
+      mean absolute error for train, validation set
+  """
+  from sklearn.metrics import mean_absolute_error
+  models = [Model(**model_params) for _ in range(5)]
+  metrics = {'trn_mae': [], 'val_mae': []} # loss_list to metrics
+
+  kf = KFold(n_splits = 5, shuffle = True, random_state = 1111)
+  ##하나의 고정된 validation set을 사용한다면 해당 성능이 일반적으로 좋은지 운으로 좋았던건지 판단할 수 있음
+  # print(y_train.shape)
+
+  for i, (trn_idx, val_idx) in enumerate(kf.split(x_train)):
+    model= models[i]
+    X_trn, y_trn = x_train[trn_idx], y_train[trn_idx]
+    X_val, y_val = x_train[val_idx], y_train[val_idx]
+    model.fit(X_trn, y_trn)
+    y_pred_trn = model.predict(X_trn)
+    y_pred_val = model.predict(X_val)
+    trn_mae = mean_absolute_error(y_pred_trn, y_trn)
+    val_mae = mean_absolute_error(y_pred_val, y_val)
+    print(f"Fold {i+1} Done.")
+    print(f"Loss: Train: {trn_mae:.6f}, Val: {val_mae:.6f}")
+
+    metrics['trn_mae'].append(trn_mae)
+    metrics['val_mae'].append(val_mae)
+    
+  return pd.DataFrame(metrics)
 
 @dataclass
 class KFoldCV:
@@ -101,9 +140,6 @@ def get_args_parser(add_help=True):
   return parser
 
 if __name__ == "__main__":
-  import numpy as np
-  from nn import ANN
-
   args = get_args_parser().parse_args()
   
   exec(open(args.config).read())
@@ -120,33 +156,46 @@ if __name__ == "__main__":
     wandb.config.update(cfg)
 
   files = cfg.get('files')
-  X_df = pd.read_csv(files.get('X_csv'), index_col=0)
-  y_df = pd.read_csv(files.get('y_csv'), index_col=0)
-
-  X, y = torch.tensor(X_df.to_numpy(dtype=np.float32)), torch.tensor(y_df.to_numpy(dtype=np.float32))
+  X_df = pd.read_csv(files.get('X_csv'), index_col=0).to_numpy(dtype=np.float32)
+  y_df = pd.read_csv(files.get('y_csv'), index_col=0).to_numpy(dtype=np.float32)
 
   Model = cfg.get('model')
-  model_params = cfg.get('model_params')
-  model_params['input_dim'] = X.shape[-1]
-  
-  
-  dl_params = train_params.get('data_loader_params')
 
-  Optim = train_params.get('optim')
-  optim_params = train_params.get('optim_params')
+  if not issubclass(Model, nn.Module):
+    print("Select Ml model from sklearn...")
+    y_df = y_df.ravel()
+    model_params = cfg.get('ml_model_params')
+    res = ml_kfold(Model, X_df, y_df, model_params)
 
-  metric = train_params.get('metric').to(device)
-  
-  cv = KFoldCV(X, y, Model, model_kwargs=model_params,
-               epochs=train_params.get('epochs'),
-               criterion=train_params.get('loss'),
-               Optimizer=Optim,
-               optim_kwargs=optim_params,
-               trn_dl_kwargs=dl_params, val_dl_kwargs=dl_params,
-               metric=metric,
-               device=device)
-  res = cv.run()
+    res = pd.concat([res, res.apply(['mean', 'std'])])
+    print(res)
+    res.to_csv(files.get('output_csv'))
 
-  res = pd.concat([res, res.apply(['mean', 'std'])])
-  print(res)
-  res.to_csv(files.get('output_csv'))
+  else:
+    print("Select ANN model with Pytorch...")
+    X, y = torch.tensor(X_df), torch.tensor(y_df)
+
+    model_params = cfg.get('model_params')
+    model_params['input_dim'] = X.shape[-1]
+    
+    
+    dl_params = train_params.get('data_loader_params')
+
+    Optim = train_params.get('optim')
+    optim_params = train_params.get('optim_params')
+
+    metric = train_params.get('metric').to(device)
+    
+    cv = KFoldCV(X, y, Model, model_kwargs=model_params,
+                epochs=train_params.get('epochs'),
+                criterion=train_params.get('loss'),
+                Optimizer=Optim,
+                optim_kwargs=optim_params,
+                trn_dl_kwargs=dl_params, val_dl_kwargs=dl_params,
+                metric=metric,
+                device=device)
+    res = cv.run()
+
+    res = pd.concat([res, res.apply(['mean', 'std'])])
+    print(res)
+    res.to_csv(files.get('output_csv'))

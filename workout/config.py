@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 import torchmetrics
 from nn import ANN
+from sklearn.ensemble import RandomForestRegressor
 
 config = {
 
@@ -30,17 +31,27 @@ config = {
   'files': {
     'X_csv': '/home/data/trn_X_1206.csv',
     'y_csv': '/home/data/trn_y_1206.csv',
+    'X_test_csv': '/home/data/tst_X_1206.csv',
     'output': './model.pth',
     'output_csv': './results/five_fold.csv',
+    'ml_output_model': './ml_model.pkl',
+    'submission_csv': './submission.csv',
   },
 
-  'model': ANN,
-  'model_params': {
+  'model': RandomForestRegressor,
+  'ann_model_params': {
     'input_dim': 'auto', # Always will be determined by the data shape
     'hidden_dim': [128, 128, 64, 32],
     'activation': "relu",
     'use_dropout': False,
     'drop_ratio': 0.3,
+  },
+  
+  'ml_model_params':{
+      'n_estimators': 40, 
+      'min_samples_leaf': 10, 
+      'min_samples_split': 10, 
+      'random_state': 2022
   },
 
   'train_params': {
