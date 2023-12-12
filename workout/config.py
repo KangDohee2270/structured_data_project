@@ -9,36 +9,35 @@ config = {
    'preprocess' : {
       "features":  ['lane_count', 'road_rating', 'maximum_speed_limit',
                   'weight_restricted', 'month', 'rough_road_name', 
-                  'line_number', 'start_latitude', 'start_longitude',
-                  'end_latitude', 'end_longitude','end_turn_restricted','start_turn_restricted',
+                  'line_number', 'start_latitude_enc', 'end_latitude_enc','end_turn_restricted','start_turn_restricted', 'weight_restricted_enc',
                   "base_hour", "peak_season", 'multi_linked', 'connect_code', 'peak_hour'],
-      "train-csv": "/home/data/train.csv",
-      "test-csv" : "/home/data/test.csv",
-      "output-train-feas-csv" : "./data/trn_X_1205.csv",
-      "output-test-feas-csv" : "./data/tst_X_1205.csv", 
-      "output-train-target-csv" : "./data/trn_y_1205.csv", 
-      "output-test-target-csv" : "./data/tst_y_1205.csv", 
+      "train-csv": "/home/data/train_last.csv",
+      "test-csv" : "/home/data/test_last.csv",
+      "output-train-feas-csv" : "./data/trn_X.csv",
+      "output-test-feas-csv" : "./data/tst_X.csv", 
+      "output-train-target-csv" : "./data/trn_y.csv", 
+      "output-test-target-csv" : "./data/tst_y.csv", 
       "encoding-columns": ['start_turn_restricted', 'end_turn_restricted'],
-      "scale-columns" : ['start_latitude', 'start_longitude', 'end_latitude', 'end_longitude', 'weight_restricted'], 
+      "scale-columns" : [], 
       "target-col" : "target",
-      "scaler" : "minmax"
+      "scaler" : "None"
   },
   'wandb':{
       'use_wandb': False,
-      'wandb_runname': "test",
+      'wandb_runname': "12.11: 위도/무게제한 인코딩 컬럼 사용, dropout=True",
       },
 
   'files': {
-    'X_csv': '/home/data/trn_X_1206.csv',
-    'y_csv': '/home/data/trn_y_1206.csv',
-    'X_test_csv': '/home/data/tst_X_1206.csv',
+    'X_csv': './data/trn_X.csv',
+    'y_csv': './data/trn_y.csv',
+    'X_test_csv': './data/tst_X.csv',
     'output': './model.pth',
     'output_csv': './results/five_fold.csv',
     'ml_output_model': './ml_model.pkl',
     'submission_csv': './submission.csv',
   },
 
-  'model': RandomForestRegressor,
+  'model': ANN, # or RandomForestRegressor
   'ann_model_params': {
     'input_dim': 'auto', # Always will be determined by the data shape
     'hidden_dim': [128, 128, 64, 32],
