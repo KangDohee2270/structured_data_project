@@ -1,8 +1,29 @@
 # est_wassup_01
 project 1, with team 1
 
-## Get Started
+## Get started
 
+### Environment Setting
+- 실험 환경
+  - Linux
+  - Python 3.10
+
+모든 패키지 및 라이브러리를 설치하려면, 터미널 창에서 `pip install -r requreiment.py` 을 실행하세요
+
+### Dataset
+- `data` 폴더 내에 전처리가 완료된 파일이 존재합니다(용량 문제 때문에 학습 데이터셋의 약 1/5만 업로드)
+- 전체 데이터셋으로 학습을 원한다면, [이 링크](https://dacon.io/competitions/official/235985/overview/description)에서 다운로드 가능합니다.
+  - 다운로드 후 `workout/data_cleansing.py`를 실행해주세요.
+
+### Start-Super Easy Way!
+```bash
+cd workout
+mkdir results
+# if you preprocess the origin data, please uncomment the following 2 lines
+# python data_cleansing.py
+# python preprocess.py
+bash start.sh
+```
 
 ## PR test + 데이터셋 후보군 구축 (11/24)
 ### PR test
