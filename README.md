@@ -8,7 +8,7 @@ project 1, with team 1
   - Linux
   - Python 3.10
 
-모든 패키지 및 라이브러리를 설치하려면, 터미널 창에서 `pip install -r requreiment.py` 을 실행하세요
+모든 패키지 및 라이브러리를 설치하려면, 터미널 창에서 `pip install -r requreiment.txt` 을 실행하세요
 
 ### Dataset
 - `data` 폴더 내에 전처리가 완료된 파일이 존재합니다(용량 문제 때문에 학습 데이터셋의 약 1/5만 업로드)
