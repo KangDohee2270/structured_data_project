@@ -179,7 +179,7 @@ class RoadDataEncoding:
 if __name__ == "__main__":
     # Load the data
     print("Load the data...")
-    test_data = pd.read_csv('/home/data/test_origin.csv')
+    test_data = pd.read_csv('/home/data/train_origin.csv')
     train_data = pd.read_csv('/home/data/test_origin.csv')
 
     train_data[["start_latitude", "start_longitude", "end_latitude", "end_longitude"]] = train_data[["start_latitude", "start_longitude", "end_latitude", "end_longitude"]].apply(lambda x: round(x, 6))
