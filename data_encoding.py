@@ -107,11 +107,11 @@ class RoadDataEncoding:
     def preprocess_rough_road_name(self):
         self.data['rough_road_name'] = self.data['road_name'].apply(self.change_rough_road_name)
 
-    def change_base_date(self, base_date):
-        return (base_date - 20000000) % 10000
-    
+
     def change_season(self, x):
+        x = (x - 20000000) % 10000
         month = int(x / 100)
+        
         if month in [12, 1, 2]:
             return 1
         elif month in [3, 4, 5]:
@@ -125,6 +125,7 @@ class RoadDataEncoding:
         self.data['season'] = self.data['base_date'].apply(self.change_season)
 
     def change_month(self, x):
+        x = (x - 20000000) % 10000
         month = int(x / 100)
         return month
 
@@ -132,6 +133,7 @@ class RoadDataEncoding:
         self.data['month'] = self.data['base_date'].apply(self.change_month)
 
     def change_peak_season(self, x):
+        x = (x - 20000000) % 10000
         month = int(x / 100)
         return month in [7, 8]
 
@@ -159,8 +161,8 @@ class RoadDataEncoding:
 if __name__ == "__main__":
     # Load the data
     print("Load the data...")
-    test_data = pd.read_csv('/home/data/test_origin.csv')
-    train_data = pd.read_csv('/home/data/train_origin.csv')
+    test_data = pd.read_csv('./workout/data/test.csv')
+    train_data = pd.read_csv('./workout/data/train.csv')
     print("Data Loading Complete. Preprocess train data first")
     train_data_encoding = RoadDataEncoding(train_data)
     # train_data_encoding.change_rough_replace_NaN() # '-' → NaN 값 변경
@@ -179,5 +181,5 @@ if __name__ == "__main__":
     # test_data_encoding.change_rough_replace_NaN()
     test_data_encoding.preprocess_all()
     print("Complete Initial preprocessing. Save 2 files")
-    train_data_encoding.data.to_csv('train_encoded.csv', index=False)
-    test_data_encoding.data.to_csv('test_encoded.csv', index=False)
+    train_data_encoding.data.to_csv('./workout/data/train_encoded.csv', index=False)
+    test_data_encoding.data.to_csv('./workout/data/test_encoded.csv', index=False)
