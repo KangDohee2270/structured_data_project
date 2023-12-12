@@ -1,6 +1,8 @@
 # est_wassup_01
 project 1, with team 1
 
+## Get Started
+
 
 ## PR test + 데이터셋 후보군 구축 (11/24)
 ### PR test
