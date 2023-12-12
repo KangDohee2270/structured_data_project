@@ -203,5 +203,5 @@ if __name__ == "__main__":
     # test_data_encoding.change_rough_replace_NaN()
     test_data_encoding.preprocess_all()
     print("Complete Initial preprocessing. Save 2 files")
-    train_data_encoding.data.to_csv('./workout/data/train_encoded.csv', index=False)
-    test_data_encoding.data.to_csv('./workout/data/test_encoded.csv', index=False)
+    train_data_encoding.data.to_csv('./data/train_encoded.csv', index=False)
+    test_data_encoding.data.to_csv('./data/test_encoded.csv', index=False)
