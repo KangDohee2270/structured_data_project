@@ -116,12 +116,14 @@ class RoadDataEncoding:
         else:
             return 3
 
+    def change_base_date(self):
+        self.data["base_date"] = (self.data["base_date"] - 20000000) % 10000
+        
     def preprocess_rough_road_name(self):
         self.data['rough_road_name'] = self.data['road_name'].apply(self.change_rough_road_name)
 
 
     def change_season(self, x):
-        x = (x - 20000000) % 10000
         month = int(x / 100)
         
         if month in [12, 1, 2]:
@@ -137,7 +139,6 @@ class RoadDataEncoding:
         self.data['season'] = self.data['base_date'].apply(self.change_season)
 
     def change_month(self, x):
-        x = (x - 20000000) % 10000
         month = int(x / 100)
         return month
 
@@ -145,7 +146,6 @@ class RoadDataEncoding:
         self.data['month'] = self.data['base_date'].apply(self.change_month)
 
     def change_peak_season(self, x):
-        x = (x - 20000000) % 10000
         month = int(x / 100)
         return month in [7, 8]
 
@@ -165,6 +165,7 @@ class RoadDataEncoding:
     def preprocess_all(self):
         self.preprocess_rough_road_name()
         self.preprocess_line_number()
+        self.change_base_date()
         self.preprocess_season()
         self.preprocess_month()
         self.preprocess_peak_season()
