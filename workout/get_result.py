@@ -21,14 +21,14 @@ if __name__ == "__main__":
     result = model.predict(X_df).tolist()
 
   else:
-    X_tst = torch.tensor(X_df.to_numpy(dtype=np.float32))
+    X_tst = torch.tensor(X_df)
     ds = TensorDataset(X_tst)
     dl = DataLoader(ds)
 
     # model
     train_params = cfg.get('train_params')
     device = torch.device(train_params.get('device'))
-    model_params = cfg.get('model_params')
+    model_params = cfg.get('ann_model_params')
     model_params['input_dim'] = X_tst.shape[-1]
     model = Model(**model_params).to(device)
 
