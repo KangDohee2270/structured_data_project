@@ -175,7 +175,7 @@ if __name__ == "__main__":
     print("Select ANN model with Pytorch...")
     X, y = torch.tensor(X_df), torch.tensor(y_df)
 
-    model_params = cfg.get('model_params')
+    model_params = cfg.get('ann_model_params')
     model_params['input_dim'] = X.shape[-1]
     
     
