@@ -5,10 +5,22 @@ from sklearn.preprocessing import LabelEncoder
 class RoadDataEncoding:
     def __init__(self, data):
         self.data = data
+        self.start_latitude_encoder = LabelEncoder()
+        self.start_latitude_encoder.fit(train_data["start_latitude"])
 
-    def le_transform(self, le, start_latitude):
-        start_latitude_enc = le.transform(start_latitude)
-        return start_latitude_enc 
+        self.end_latitude_encoder = LabelEncoder()
+        self.end_latitude_encoder.fit(train_data["end_latitude"])
+        
+        self.weight_restricted_encoder = LabelEncoder()
+        self.weight_restricted_encoder.fit(train_data["weight_restricted"])
+
+        self.enc_list = {"start_latitude": self.start_latitude_encoder, 
+                         "end_latitude": self.end_latitude_encoder, 
+                         "weight_restricted": self.weight_restricted_encoder}
+    
+    def le_transform(self, column: str):
+        encoder = self.enc_list[column]
+        self.data[column + "_enc"] = encoder.transform(self.data[column])
     
     # '-' → NaN 값 변경
     # def change_rough_replace_NaN(self): 
@@ -107,11 +119,11 @@ class RoadDataEncoding:
     def preprocess_rough_road_name(self):
         self.data['rough_road_name'] = self.data['road_name'].apply(self.change_rough_road_name)
 
-    def change_base_date(self, base_date):
-        return (base_date - 20000000) % 10000
-    
+
     def change_season(self, x):
+        x = (x - 20000000) % 10000
         month = int(x / 100)
+        
         if month in [12, 1, 2]:
             return 1
         elif month in [3, 4, 5]:
@@ -125,6 +137,7 @@ class RoadDataEncoding:
         self.data['season'] = self.data['base_date'].apply(self.change_season)
 
     def change_month(self, x):
+        x = (x - 20000000) % 10000
         month = int(x / 100)
         return month
 
@@ -132,6 +145,7 @@ class RoadDataEncoding:
         self.data['month'] = self.data['base_date'].apply(self.change_month)
 
     def change_peak_season(self, x):
+        x = (x - 20000000) % 10000
         month = int(x / 100)
         return month in [7, 8]
 
@@ -156,11 +170,20 @@ class RoadDataEncoding:
         self.preprocess_peak_season()
         self.preprocess_peak_hour()
 
+        # 인코딩 컬럼 추가
+        self.le_transform("start_latitude")
+        self.le_transform("end_latitude")
+        self.le_transform("weight_restricted")
+
 if __name__ == "__main__":
     # Load the data
     print("Load the data...")
     test_data = pd.read_csv('/home/data/test_origin.csv')
-    train_data = pd.read_csv('/home/data/train_origin.csv')
+    train_data = pd.read_csv('/home/data/test_origin.csv')
+
+    train_data[["start_latitude", "start_longitude", "end_latitude", "end_longitude"]] = train_data[["start_latitude", "start_longitude", "end_latitude", "end_longitude"]].apply(lambda x: round(x, 6))
+    test_data[["start_latitude", "start_longitude", "end_latitude", "end_longitude"]] = test_data[["start_latitude", "start_longitude", "end_latitude", "end_longitude"]].apply(lambda x: round(x, 6))
+    
     print("Data Loading Complete. Preprocess train data first")
     train_data_encoding = RoadDataEncoding(train_data)
     # train_data_encoding.change_rough_replace_NaN() # '-' → NaN 값 변경
@@ -179,5 +202,5 @@ if __name__ == "__main__":
     # test_data_encoding.change_rough_replace_NaN()
     test_data_encoding.preprocess_all()
     print("Complete Initial preprocessing. Save 2 files")
-    train_data_encoding.data.to_csv('train_encoded.csv', index=False)
-    test_data_encoding.data.to_csv('test_encoded.csv', index=False)
+    train_data_encoding.data.to_csv('./workout/data/train_encoded.csv', index=False)
+    test_data_encoding.data.to_csv('./workout/data/test_encoded.csv', index=False)
